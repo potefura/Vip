@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Auth Bypass Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #202225;
+            color: #dcddde;
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: #2f3136;
+            border-right: 1px solid #1a1b1e;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #5865f2;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo::before {
+            content: "🔓";
+            font-size: 28px;
+        }
+        
+        .nav-item {
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #b9bbbe;
+        }
+        
+        .nav-item:hover {
+            background: #393c43;
+            color: #dcddde;
+        }
+        
+        .nav-item.active {
+            background: #5865f2;
+            color: white;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        
+        .card {
+            background: #2f3136;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #1a1b1e;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #b9bbbe;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            background: #202225;
+            border: 1px solid #1a1b1e;
+            color: #dcddde;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border 0.2s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #5865f2;
+        }
+        
+        .btn {
+            background: #5865f2;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #4752c4;
+            transform: translateY(-1px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .method-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .method-card {
+            background: #202225;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #1a1b1e;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .method-card:hover {
+            border-color: #5865f2;
+        }
+        
+        .method-card.selected {
+            border-color: #5865f2;
+            background: rgba(88, 101, 242, 0.1);
+        }
+        
+        .method-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .method-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .dynamic-fields {
+            margin-top: 20px;
+        }
+        
+        .log-container {
+            background: #202225;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', monospace;
+            font-size: 13px;
+        }
+        
+        .log-entry {
+            padding: 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+        }
+        
+        .log-success {
+            background: rgba(67, 181, 129, 0.1);
+            color: #43b581;
+        }
+        
+        .log-error {
+            background: rgba(240, 71, 71, 0.1);
+            color: #f04747;
+        }
+        
+        .log-info {
+            color: #7289da;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+        
+        .status-active {
+            background: rgba(67, 181, 129, 0.2);
+            color: #43b581;
+        }
+        
+        .status-inactive {
+            background: rgba(240, 71, 71, 0.2);
+            color: #f04747;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #2f3136;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #202225;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1a1b1e;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">Auth Bypass</div>
+        <div class="nav-item active">
+            <span>⚡</span>
+            <span>クイック認証</span>
+        </div>
+        <div class="nav-item">
+            <span>⚙️</span>
+            <span>設定</span>
+        </div>
+        <div class="nav-item">
+            <span>📊</span>
+            <span>ログ</span>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="card">
+            <div class="card-title">
+                認証設定
+                <span class="status-badge status-inactive" id="status">未接続</span>
+            </div>
+            
+            <div class="input-group">
+                <label>ユーザートークン</label>
+                <input type="password" id="token" placeholder="あなたのDiscordユーザートークン">
+            </div>
+            
+            <div class="input-group">
+                <label>サーバーID</label>
+                <input type="text" id="serverId" placeholder="認証サーバーのID">
+            </div>
+            
+            <div class="input-group">
+                <label>チャンネルID</label>
+                <input type="text" id="channelId" placeholder="認証チャンネルのID">
+            </div>
+            
+            <div class="input-group">
+                <label>メッセージID</label>
+                <input type="text" id="messageId" placeholder="認証パネルのメッセージID">
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">認証方法を選択</div>
+            
+            <div class="method-selector">
+                <div class="method-card" data-method="reaction">
+                    <div class="method-icon">👋</div>
+                    <div class="method-name">リアクション</div>
+                </div>
+                <!-- 既存のHTMLの method-selector の後に追加 -->
+<div class="method-card" data-method="auto">
+    <div class="method-icon">🤖</div>
+    <div class="method-name">完全自動</div>
+</div>
+
+<script>
+// updateDynamicFields関数に追加
+function updateDynamicFields(method) {
+    const container = document.getElementById('dynamicFields');
+    container.innerHTML = '';
+    
+    // ... 既存のコード ...
+    
+    if (method === 'auto') {
+        container.innerHTML = `
+            <div class="input-group">
+                <label>ソルバー選択</label>
+                <select id="solverType">
+                    <option value="gemini">Gemini API (推奨)</option>
+                    <option value="2captcha">2Captcha</option>
+                    <option value="capmonster">CapMonster</option>
+                    <option value="capsolver">CapSolver</option>
+                    <option value="custom">カスタムOCR</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>API Key</label>
+                <input type="password" id="solverApiKey" placeholder="ソルバーのAPIキー">
+            </div>
+            <div style="background: rgba(88, 101, 242, 0.1); padding: 16px; border-radius: 8px; margin-top: 12px;">
+                <div style="font-size: 14px; color: #5865f2; font-weight: 600; margin-bottom: 8px;">
+                    🤖 完全自動モード
+                </div>
+                <div style="font-size: 13px; color: #b9bbbe; line-height: 1.5;">
+                    ボットからのメッセージを監視して、計算問題・画像CAPTCHA・フォーム入力を自動検出して解決します。
+                    Miffy以外のボットにも対応。
+                </div>
+            </div>
+        `;
+    }
+}
+</script>
+
+                <div class="method-card" data-method="button">
+                    <div class="method-icon">🔘</div>
+                    <div class="method-name">ボタン</div>
+                </div>
+                <div class="method-card" data-method="number_input">
+                    <div class="method-icon">🔢</div>
+                    <div class="method-name">数字入力</div>
+                </div>
+                <div class="method-card" data-method="image_captcha">
+                    <div class="method-icon">🖼️</div>
+                    <div class="method-name">画像認証</div>
+                </div>
+                <div class="method-card" data-method="math">
+                    <div class="method-icon">➕</div>
+                    <div class="method-name">計算問題</div>
+                </div>
+            </div>
+            
+            <div class="dynamic-fields" id="dynamicFields"></div>
+            
+            <button class="btn" id="executeBtn">認証を実行</button>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">実行ログ</div>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry log-info">システム起動完了 - ログ待機中...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedMethod = null;
+        
+        // メソッド選択
+        document.querySelectorAll('.method-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedMethod = card.dataset.method;
+                updateDynamicFields(selectedMethod);
+            });
+        });
+        
+        function updateDynamicFields(method) {
+            const container = document.getElementById('dynamicFields');
+            container.innerHTML = '';
+            
+            if (method === 'reaction') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <label>絵文字</label>
+                        <input type="text" id="emoji" placeholder="👋 または絵文字ID">
+                    </div>
+                `;
+            } else if (method === 'button') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <label>ボタンテキスト</label>
+                        <input type="text" id="buttonText" placeholder="認証">
+                    </div>
+                `;
+            } else if (method === 'number_input') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <label>最初のボタンテキスト</label>
+                        <input type="text" id="firstButtonText" placeholder="認証">
+                    </div>
+                    <div class="input-group">
+                        <label>送信するテキスト</label>
+                        <input type="text" id="inputText" placeholder="答えを入力">
+                    </div>
+                `;
+            } else if (method === 'image_captcha') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <label>ボタンテキスト</label>
+                        <input type="text" id="buttonText" placeholder="認証">
+                    </div>
+                    <div class="input-group">
+                        <label>解答ボタンテキスト</label>
+                        <input type="text" id="answerButtonText" placeholder="答えを入力">
+                    </div>
+                    <div class="input-group">
+                        <label>ソルバー選択</label>
+                        <select id="solverType">
+                            <option value="gemini">Gemini API (推奨)</option>
+                            <option value="2captcha">2Captcha</option>
+                            <option value="capmonster">CapMonster</option>
+                            <option value="capsolver">CapSolver</option>
+                            <option value="custom">カスタムOCR</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>API Key</label>
+                        <input type="password" id="solverApiKey" placeholder="選択したソルバーのAPIキー">
+                    </div>
+                `;
+            } else if (method === 'math') {
+                container.innerHTML = `
+                    <div class="input-group">
+                        <label>ボタンテキスト</label>
+                        <input type="text" id="buttonText" placeholder="認証">
+                    </div>
+                `;
+            }
+        }
+        
+        // ログ追加関数
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // 実行ボタン
+        document.getElementById('executeBtn').addEventListener('click', async () => {
+            if (!selectedMethod) {
+                addLog('認証方法を選択してください', 'error');
+                return;
+            }
+            
+            const token = document.getElementById('token').value;
+            const serverId = document.getElementById('serverId').value;
+            const channelId = document.getElementById('channelId').value;
+            const messageId = document.getElementById('messageId').value;
+            
+            if (!token || !serverId || !channelId || !messageId) {
+                addLog('すべてのフィールドを入力してください', 'error');
+                return;
+            }
+            
+            const payload = {
+                token,
+                serverId,
+                channelId,
+                messageId,
+                method: selectedMethod
+            };
+            
+            // メソッド別のパラメータ収集
+            if (selectedMethod === 'reaction') {
+                payload.emoji = document.getElementById('emoji').value;
+            } else if (selectedMethod === 'button') {
+                payload.buttonText = document.getElementById('buttonText').value;
+            } else if (selectedMethod === 'number_input') {
+                payload.firstButtonText = document.getElementById('firstButtonText').value;
+                payload.inputText = document.getElementById('inputText').value;
+            } else if (selectedMethod === 'image_captcha') {
+                payload.buttonText = document.getElementById('buttonText').value;
+                payload.answerButtonText = document.getElementById('answerButtonText').value;
+                payload.solverType = document.getElementById('solverType').value;
+                payload.solverApiKey = document.getElementById('solverApiKey').value;
+            } else if (selectedMethod === 'math') {
+                payload.buttonText = document.getElementById('buttonText').value;
+            }
+            
+            addLog('認証プロセス開始...', 'info');
+            document.getElementById('status').className = 'status-badge status-active';
+            document.getElementById('status').textContent = '実行中';
+            
+            try {
+                const response = await fetch('/.netlify/functions/bypass', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addLog(`✓ ${result.message}`, 'success');
+                    document.getElementById('status').textContent = '成功';
+                } else {
+                    addLog(`✗ ${result.error}`, 'error');
+                    document.getElementById('status').className = 'status-badge status-inactive';
+                    document.getElementById('status').textContent = '失敗';
+                }
+            } catch (error) {
+                addLog(`エラー: ${error.message}`, 'error');
+                document.getElementById('status').className = 'status-badge status-inactive';
+                document.getElementById('status').textContent = 'エラー';
+            }
+        });
+    </script>
+</body>
+</html>
