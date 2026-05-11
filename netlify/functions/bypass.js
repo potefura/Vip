@@ -1,52 +1,58 @@
-// netlify/functions/bypass.js
-const { AuthBypass } = require('../../index');
+import json
+import asyncio
+# 同じディレクトリ、あるいはルートにある discord_auth_bypass.py を読み込む
+from discord_auth_bypass import AuthBypass 
 
-exports.handler = async (event) => {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
-    }
-    
-    try {
-        const payload = JSON.parse(event.body);
+def handler(event, context):
+    # POST以外のアクセスを拒否
+    if event.get('httpMethod') != 'POST':
+        return {'statusCode': 405, 'body': 'Method Not Allowed'}
+
+    try:
+        # フロントエンドから送られてきたデータ(JSON)を解析
+        payload = json.loads(event.get('body', '{}'))
         
-        const config = {
-            solver_type: payload.solverType,
-            gemini_api_key: payload.solverApiKey,
-            '2captcha_api_key': payload.solverApiKey,
-            'capmonster_api_key': payload.solverApiKey,
-            'capsolver_api_key': payload.solverApiKey
-        };
+        token = payload.get('token')
+        config = {
+            'solver_type': payload.get('solverType'),
+            'gemini_api_key': payload.get('solverApiKey'),
+            '2captcha_api_key': payload.get('solverApiKey'),
+            'capmonster_api_key': payload.get('solverApiKey'),
+            'capsolver_api_key': payload.get('solverApiKey')
+        }
+
+        # Pythonのクラスを呼び出し
+        bypass = AuthBypass(token, config)
+
+        # 非同期処理を実行するための設定
+        loop = asyncio.get_event_loop()
         
-        const bypass = new AuthBypass(payload.token, config);
-        
-        const result = await bypass.bypass_auth(
-            payload.serverId,
-            payload.messageId,
-            payload.method,
-            {
-                channel_id: payload.channelId,
-                emoji: payload.emoji,
-                button_text: payload.buttonText,
-                first_button_text: payload.firstButtonText,
-                input_text: payload.inputText,
-                answer_button_text: payload.answerButtonText
-            }
-        );
-        
+        # クラス内の bypass_auth メソッドを実行
+        result = loop.run_until_complete(bypass.bypass_auth(
+            payload.get('serverId'),
+            payload.get('messageId'),
+            payload.get('method'),
+            channel_id=payload.get('channelId'),
+            emoji=payload.get('emoji'),
+            button_text=payload.get('buttonText'),
+            first_button_text=payload.get('firstButtonText'),
+            input_text=payload.get('inputText'),
+            answer_button_text=payload.get('answerButtonText')
+        ))
+
         return {
-            statusCode: 200,
-            body: JSON.stringify({
-                success: true,
-                message: result
+            'statusCode': 200,
+            'body': json.dumps({
+                'success': True,
+                'message': str(result)
             })
-        };
-    } catch (error) {
+        }
+
+    except Exception as e:
         return {
-            statusCode: 500,
-            body: JSON.stringify({
-                success: false,
-                error: error.message
+            'statusCode': 500,
+            'body': json.dumps({
+                'success': False,
+                'error': str(e)
             })
-        };
-    }
-};
+        }
