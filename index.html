@@ -299,50 +299,6 @@
                     <div class="method-icon">👋</div>
                     <div class="method-name">リアクション</div>
                 </div>
-                <!-- 既存のHTMLの method-selector の後に追加 -->
-<div class="method-card" data-method="auto">
-    <div class="method-icon">🤖</div>
-    <div class="method-name">完全自動</div>
-</div>
-
-<script>
-// updateDynamicFields関数に追加
-function updateDynamicFields(method) {
-    const container = document.getElementById('dynamicFields');
-    container.innerHTML = '';
-    
-    // ... 既存のコード ...
-    
-    if (method === 'auto') {
-        container.innerHTML = `
-            <div class="input-group">
-                <label>ソルバー選択</label>
-                <select id="solverType">
-                    <option value="gemini">Gemini API (推奨)</option>
-                    <option value="2captcha">2Captcha</option>
-                    <option value="capmonster">CapMonster</option>
-                    <option value="capsolver">CapSolver</option>
-                    <option value="custom">カスタムOCR</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>API Key</label>
-                <input type="password" id="solverApiKey" placeholder="ソルバーのAPIキー">
-            </div>
-            <div style="background: rgba(88, 101, 242, 0.1); padding: 16px; border-radius: 8px; margin-top: 12px;">
-                <div style="font-size: 14px; color: #5865f2; font-weight: 600; margin-bottom: 8px;">
-                    🤖 完全自動モード
-                </div>
-                <div style="font-size: 13px; color: #b9bbbe; line-height: 1.5;">
-                    ボットからのメッセージを監視して、計算問題・画像CAPTCHA・フォーム入力を自動検出して解決します。
-                    Miffy以外のボットにも対応。
-                </div>
-            </div>
-        `;
-    }
-}
-</script>
-
                 <div class="method-card" data-method="button">
                     <div class="method-icon">🔘</div>
                     <div class="method-name">ボタン</div>
