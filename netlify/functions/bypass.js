@@ -1,7 +1,6 @@
 import json
 import asyncio
-# 同じディレクトリ、あるいはルートにある discord_auth_bypass.py を読み込む
-from discord_auth_bypass import AuthBypass 
+from main import AuthBypass 
 
 def handler(event, context):
     # POST以外のアクセスを拒否
